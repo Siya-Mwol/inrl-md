@@ -76,7 +76,6 @@ message.reply(JSON.stringify(e))
 });
 inrl({ pattern: ["add"], usage: '<num1/numb2&etc>', sucReact: "😋", category: ["group", "all"], type :'group'},
 async (message, client, match) => {
-try {
   const BotAdmin = await isBotAdmins(message,client);
   const Isadmin = await isAdmin(message, client);
   const {text, document, audio, gift, gclink, video, local, contact, status }= await quoted(message);
@@ -86,19 +85,19 @@ try {
         if(match){
         let users = match.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
         const su = await client.groupParticipantsUpdate(message.from, [users], "add" );
-        if(su == 403) {
+        if(su[0].status == 403) {
 		message.reply(`Couldn't Add Invite Send`);
 		const code = await client.groupInviteCode(message.from);
 		return await client.sendMessage(users, { text : `https://chat.whatsapp.com/${code}`}, { quoted : text })
-	    } else if (su == 408) {
+	    } else if (su[0].status == 408) {
 		message.reply(`Couldn't add @${users.split('@')[0]} because they left the group recently. Try again later.`);
 		const code = await client.groupInviteCode(message.from);
 		return await client.sendMessage(users, { text : `https://chat.whatsapp.com/${code}`}, { quoted : video })
-	    } else if (su == 401) {
+	    } else if (su[0].status == 401) {
 		 return message.reply(`Couldn't add @${users.split('@')[0]} because they blocked the bot number.`);
-	    } else if (su == 200) {
+	    } else if (su[0].status == 200) {
 		return await client.sendMessage(message.from, { text : '_'+message.quoted.sender.split('@')[0] +' added to the group_'}, { quoted : gclink })
-	    } else if (su == 409) {
+	    } else if (su[0].status == 409) {
 		return message.reply(`@${users.split('@')[0]}, Already in Group`);
 	    } else {
 		return await message.reply(JSON.stringify(su));
@@ -106,27 +105,24 @@ try {
         }else if(message.quoted){
         let users = message.quoted.sender;
         const su = await client.groupParticipantsUpdate( message.from, [users], "add" );
-        if(su == 403) {
+        if(su[0].status == 403) {
 		message.reply(`Couldn't Add Invite Send`);
 		const code = await client.groupInviteCode(message.from);
 		return await client.sendMessage(users, { text : `https://chat.whatsapp.com/${code}`}, { quoted : text })
-	    } else if (su == 408) {
+	    } else if (su[0].status == 408) {
 		message.reply(`Couldn't add @${users.split('@')[0]} because they left the group recently. Try again later.`);
 		const code = await client.groupInviteCode(message.from);
 		return await client.sendMessage(users, { text : `https://chat.whatsapp.com/${code}`}, { quoted : video })
-	    } else if (su == 401) {
+	    } else if (su[0].status == 401) {
 		 return message.reply(`Couldn't add @${users.split('@')[0]} because they blocked the bot number.`);
-	    } else if (su == 200) {
+	    } else if (su[0].status == 200) {
 		return await client.sendMessage(message.from, { text : '_'+message.quoted.sender.split('@')[0] +' added to the group_'}, { quoted : gclink })
-	    } else if (su == 409) {
+	    } else if (su[0].status == 409) {
 		return message.reply(`@${users.split('@')[0]}, Already in Group`);
 	    } else {
 		return await message.reply(JSON.stringify(su));
 	        }
        }
-} catch (e){
-message.reply(JSON.stringify(e))
-     }
 });
 inrl({ pattern: ["gpp"],desc: 'set full size profile picture', sucReact: "😁",  category: ["all", "create"],type : 'group'},
 	async (message, client, match) => {
@@ -188,31 +184,60 @@ try {
 } catch (e){
 message.reply(JSON.stringify(e))
      }
-});inrl({pattern: ["mute", "unmute", "lock", "unlock"], sucReact: "🤙", category: ["group", "all"], type :'group'},
-  async (message, client, match) => {
+});
+inrl({pattern: ["mute"], sucReact: "🤙", category: ["group", "all"], type :'group'}, async (message, client, match) => {
+const {text, document, audio, gift, gclink, video, local, contact, status }= await quoted(message);
+const BotAdmin = await isBotAdmins(message,client);
+const Isadmin = await isAdmin(message, client);
 try {
-  const BotAdmin = await isBotAdmins(message,client);
-  const Isadmin = await isAdmin(message, client);
-  const {text, document, audio, gift, gclink, video, local, contact, status }= await quoted(message);
-    if(!message.client.isCreator && !Isadmin) return message.send('only for owner!');
-        if(!message.isGroup) return message.reply('this cmd only work on group');
-        if (message.client.command == "unmute") {
-            await client.groupSettingUpdate(message.from, "not_announcement");
-            return await client.sendMessage( message.from, { text: '_Group Opened!_' }, { quoted: contact } );
-        } else if (message.client.command == "mute") {
+  if(!message.client.isCreator && !Isadmin) return message.send('only for owner!');
+  if(!message.isGroup) return message.reply('this cmd only work on group');
             await client.groupSettingUpdate(message.from, "announcement");
             return await client.sendMessage( message.from, { text: '_Group Closed_' }, { quoted: status } );
-        } else if (message.client.command == "unlock") {
-            await client.groupSettingUpdate(message.from, "unlocked");
-            return await client.sendMessage( message.from, { text: '_Group Unlocked!_' }, { quoted: document } );
-        } else if (message.client.command == "lock") {
+} catch(e){
+return message.reply(JSON.stringify(e));
+     }
+});
+inrl({pattern: ["unmute"], sucReact: "🤙", category: ["group", "all"], type :'group'}, async (message, client, match) => {
+const {text, document, audio, gift, gclink, video, local, contact, status }= await quoted(message);
+const BotAdmin = await isBotAdmins(message,client);
+const Isadmin = await isAdmin(message, client);
+try {
+  if(!message.client.isCreator && !Isadmin) return message.send('only for owner!');
+  if(!message.isGroup) return message.reply('this cmd only work on group');
+            await client.groupSettingUpdate(message.from, "not_announcement");
+            return await client.sendMessage( message.from, { text: '_Group Opened!_' }, { quoted: contact } );
+} catch(e){
+return message.reply(JSON.stringify(e));
+     }
+});
+inrl({pattern: ["lock"], sucReact: "🤙", category: ["group", "all"], type :'group'}, async (message, client, match) => {
+const {text, document, audio, gift, gclink, video, local, contact, status }= await quoted(message);
+const BotAdmin = await isBotAdmins(message,client);
+const Isadmin = await isAdmin(message, client);
+try {
+  if(!message.client.isCreator && !Isadmin) return message.send('only for owner!');
+  if(!message.isGroup) return message.reply('this cmd only work on group');
             await client.groupSettingUpdate(message.from, "locked");
             return await client.sendMessage( message.from, { text: '_Group Locked!_' }, { quoted: contact } );
-        }
-} catch (e){
-message.reply(JSON.stringify(e))
+} catch(e){
+return message.reply(JSON.stringify(e));
      }
-});inrl({ pattern: ["left"], sucReact: "👋", category: ["group", "all"], type :'group'},
+});
+inrl({pattern: ["unlock"], sucReact: "🤙", category: ["group", "all"], type :'group'}, async (message, client, match) => {
+const {text, document, audio, gift, gclink, video, local, contact, status }= await quoted(message);
+const BotAdmin = await isBotAdmins(message,client);
+const Isadmin = await isAdmin(message, client);
+try {
+  if(!message.client.isCreator && !Isadmin) return message.send('only for owner!');
+  if(!message.isGroup) return message.reply('this cmd only work on group');
+            await client.groupSettingUpdate(message.from, "unlocked");
+            return await client.sendMessage( message.from, { text: '_Group Unlocked!_' }, { quoted: document } );
+} catch(e){
+return message.reply(JSON.stringify(e));
+     }
+});
+inrl({ pattern: ["left"], sucReact: "👋", category: ["group", "all"], type :'group'},
   async (message, client, match) => {
 try {
   const BotAdmin = await isBotAdmins(message,client);
@@ -276,9 +301,10 @@ try {
   const Isadmin = await isAdmin(message, client);
   const {text, document, audio, gift, gclink, video, local, contact, status }= await quoted(message);
     if(!message.client.isCreator && !Isadmin) return message.reply('only for owner!');
+    if(!message.isGroup || !match) return ("need grp url and only work in grp");
         let urlArray = (match).trim().split("/")[3]; 
-        let { id, owner, subject, subjectOwner, subjectTime, creation, desc, descOwner, descId, restrict, announce, size, participants, ephemeralDuration, } = await client.groupGetInviteInfo(urlArray);
-        await client.sendMessage( message.from, { text: `💗 Joined: ${id}\n ${owner} \n${subject} \n${subjectOwner} \n${subjectTime} \n${creation} \n${desc} \n${descOwner} \n${descId} \n${restrict} \n${announce} \n${size} \n${ephemeralDuration}` }, { quoted: status } );      
+        let { id, owner, subject, subjectOwner, subjectTime, creation, desc, descOwner, descId, restrict, announce, size, participants } = await client.groupGetInviteInfo(urlArray);
+        await client.sendMessage( message.from, { text: `💗 Joined: ${id}\n ${owner} \n${subject} \n${subjectOwner} \n${subjectTime} \n${creation} \n${desc.toString()} \n${descOwner} \n${descId} \n${restrict} \n${announce} \n${size}` }, { quoted: status } );      
 } catch (e){
 message.reply(JSON.stringify(e))
      }
@@ -288,7 +314,7 @@ inrl({ pattern: ["pp"],desc: 'set  profile picture of bot', sucReact: "😁",  c
 	async (message, client, match) => {
 try {
 	if(!message.client.isCreator) return message.reply('cant possible to update your profile picture');
-    if(!message.quoted) return messag.reply('reply to an image!');
+        if(!message.quoted) return messag.reply('reply to an image!');
 	let _message = message.quoted.imageMessage;
 	let download = await client.downloadMediaMessage(_message);
     await client.updateProfilePicture(message.client.botNumber,download ).catch((err) => fs.unlinkSync(download))
