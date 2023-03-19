@@ -12,7 +12,30 @@ const isAdmin = async (message, client, match) => {
 	const admins = await groupMetadata.participants.filter(v => v.admin !== null).map(v => v.id)
 	return admins.includes(message.from)
 }
-
+ inrl(
+	   {
+	pattern: ['tag'],
+	desc: 'no desc',
+        sucReact: "💯",
+        category: ["system", "all"],
+        type :"whatsapp"
+	   },
+	async (m, conn, match ) => {
+        if(!m.client.isCreator) return await m.reply('only for owner!')
+            if (!m.isGroup) return m.reply("this plugin only works in group!");
+            const groupMetadata = await conn.groupMetadata(m.key.remoteJid).catch((e) => {});
+            const participants = await groupMetadata.participants;
+            if(m.quoted){
+            match = match || m.quoted.text;
+            }
+            if(!match) return await m.reply('need text');
+            conn.sendMessage(m.key.remoteJid, {
+                text: match,
+                mentions: participants.map((a) => a.id),
+            }, {
+                quoted: m,
+            });
+ });
 inrl({ pattern: ["promote"], usage: '<mentions|reply>', sucReact: "😎", category: ["group", "all"], type :'group'},
   async (message, client, match) => {
 try {
